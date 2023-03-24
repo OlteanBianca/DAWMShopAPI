@@ -7,15 +7,15 @@ Dependencies.Inject(builder);
 
 var app = builder.Build();
 
-app.UseSwagger(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.RouteTemplate = "api/swagger/{documentName}/swagger.json";
-});
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Project");
-    c.RoutePrefix = "api/swagger";
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.RoutePrefix = string.Empty;
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ShopAPI");
+    });
+}
 
 app.UseRouting();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShopAPI.Repositories;
 
 namespace ShopAPI.Settings
 {
@@ -20,12 +21,12 @@ namespace ShopAPI.Settings
 
         private static void AddServices(IServiceCollection services)
         {
-           // services.AddScoped<StudentService>();
+          //  services.AddScoped<StudentService>();
         }
 
         private static void AddRepositories(IServiceCollection services)
         {
-           // services.AddScoped<StudentsRepository>();
+            services.AddTransient<IProductRepository, ProductRepository>();
         }
     }
 }
