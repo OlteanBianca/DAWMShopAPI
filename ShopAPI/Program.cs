@@ -13,7 +13,7 @@ app.UseSwagger(c =>
 });
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "ShopAPI");
+    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Project");
     c.RoutePrefix = "api/swagger";
 });
 
