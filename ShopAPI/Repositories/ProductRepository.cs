@@ -5,10 +5,11 @@ namespace ShopAPI.Repositories
 {
     public class ProductRepository : BaseRepository, IProductRepository
     {
-        public ProductRepository(AppDBContext shopContext) : base(shopContext)
-        {
-        }
+        #region Constructors
+        public ProductRepository(AppDBContext shopContext) : base(shopContext) { }
+        #endregion
 
+        #region Public Methods
         public async Task<bool> Add(Product objectToAdd)
         {
             await _shopContext.Products.AddAsync(objectToAdd);
@@ -61,6 +62,7 @@ namespace ShopAPI.Repositories
             await _shopContext.SaveChangesAsync();
 
             return true;
-        }  
+        }
+        #endregion
     }
 }

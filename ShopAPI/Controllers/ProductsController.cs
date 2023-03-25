@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShopAPI.DTOs;
-using ShopAPI.Mappings;
-using ShopAPI.Repositories;
+using ShopAPI.Services;
 
 namespace ShopAPI.Controllers
 {
@@ -9,18 +8,29 @@ namespace ShopAPI.Controllers
     [Route("[controller]")]
     public class ProductsController : Controller
     {
-        private readonly IProductRepository _productRepository;
+        #region Private Fields
+        private readonly IProductService _productService;
+        #endregion
 
-        public ProductsController(IProductRepository productRepository)
+        #region Constructors
+        public ProductsController(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService;
         }
+        #endregion
 
+        #region Public Methods
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _productRepository.GetAll();
-            return Ok(ProductMappingExtension.ToProductDTOs(products));
+            var products = await _productService.GetAll();
+
+            if (products == null)
+            {
+                return BadRequest("There are no products in the database.");
+            }
+
+            return Ok(products);
         }
 
         [HttpGet("{id}")]
@@ -31,14 +41,14 @@ namespace ShopAPI.Controllers
                 return BadRequest("The id can't be null!");
             }
 
-            var product = await _productRepository.Get(id);
+            var product = await _productService.Get(id);
 
             if (product == null)
             {
                 return NotFound("Product doesn't exist!");
             }
 
-            return Ok(ProductMappingExtension.ToProductDTO(product));
+            return Ok(product);
         }
 
         [HttpPost]
@@ -49,12 +59,12 @@ namespace ShopAPI.Controllers
                 return BadRequest("The product can't be null!");
             }
 
-            if (await _productRepository.IfExists(product.Name, -1))
+            if (await _productService.IfExists(product.Name, -1))
             {
                 return BadRequest("There is already a product with that name.");
             }
 
-            if (await _productRepository.Add(ProductMappingExtension.ToProduct(product)))
+            if (await _productService.Add(product))
             {
                 return Ok(product);
             }
@@ -64,19 +74,16 @@ namespace ShopAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, [FromBody] ProductDTO productDTO)
         {
-            if (!await _productRepository.IfExists(id))
+            if (!await _productService.IfExists(id))
             {
                 return BadRequest("There is no product with that id.");
             }
-            if (await _productRepository.IfExists(productDTO.Name, id))
+            if (await _productService.IfExists(productDTO.Name, id))
             {
                 return BadRequest("There is already a product with that name.");
             }
 
-            var product = ProductMappingExtension.ToProduct(productDTO);
-            product.Id = id;
-
-            if (await _productRepository.Update(product))
+            if (await _productService.Update(productDTO, id))
             {
                 return Ok(productDTO);
             }
@@ -86,21 +93,22 @@ namespace ShopAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (await _productRepository.GetAll() == null)
+            if (await _productService.GetAll() == null)
             {
                 return BadRequest("There are no products in the database.");
             }
 
-            if (await _productRepository.Get(id) == null)
+            if (await _productService.Get(id) == null)
             {
-                return NotFound("Product doesn't exist!");
+                return NotFound("The product doesn't exist!");
             }
 
-            if (await _productRepository.Delete(id))
+            if (await _productService.Delete(id))
             {
-                return Ok("Product was successfully deleted!");
+                return Ok("The product was successfully deleted!");
             }
             return BadRequest("Id invalid!");
         }
+        #endregion
     }
 }

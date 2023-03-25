@@ -5,13 +5,15 @@ namespace ShopAPI
 {
     public partial class AppDBContext : DbContext
     {
+        #region Properties
         public virtual DbSet<Inventory> Inventories { get; set; }
 
         public virtual DbSet<Product> Products { get; set; }
 
         public virtual DbSet<Shop> Shops { get; set; }
+        #endregion
 
-
+        #region Constructors
         public AppDBContext()
         {
         }
@@ -20,7 +22,9 @@ namespace ShopAPI
             : base(options)
         {
         }
+        #endregion
 
+        #region Methods
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Inventory>(entity =>
@@ -61,5 +65,6 @@ namespace ShopAPI
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+        #endregion
     }
 }

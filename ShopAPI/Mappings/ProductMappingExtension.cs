@@ -5,14 +5,15 @@ namespace ShopAPI.Mappings
 {
     public static class ProductMappingExtension
     {
-        public static List<ProductDTO> ToProductDTOs(this List<Product> products)
+        #region Entity to DTO
+        public static List<ProductDTO?> ToProductDTOs(this List<Product> products)
         {
             var results = products.Select(e => e.ToProductDTO()).ToList();
 
             return results;
         }
 
-        public static ProductDTO ToProductDTO(this Product product)
+        public static ProductDTO? ToProductDTO(this Product product)
         {
             if (product == null) return null;
 
@@ -25,15 +26,17 @@ namespace ShopAPI.Mappings
 
             return result;
         }
+        #endregion
 
-        public static List<Product> ToProducts(this List<ProductDTO> products)
+        #region DTO to Entity
+        public static List<Product?> ToProducts(this List<ProductDTO> products)
         {
             var results = products.Select(e => e.ToProduct()).ToList();
 
             return results;
         }
 
-        public static Product ToProduct(this ProductDTO product)
+        public static Product? ToProduct(this ProductDTO product)
         {
             if (product == null) return null;
 
@@ -46,5 +49,6 @@ namespace ShopAPI.Mappings
 
             return result;
         }
+        #endregion
     }
 }
