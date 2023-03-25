@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShopAPI.Models;
+using ShopAPI.DTOs;
+using ShopAPI.Mappings;
 using ShopAPI.Repositories;
 
 namespace ShopAPI.Controllers
@@ -18,7 +19,8 @@ namespace ShopAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _productRepository.GetAll());
+            var products = await _productRepository.GetAll();
+            return Ok(ProductMappingExtension.ToProductDTOs(products));
         }
 
         [HttpGet("{id}")]
@@ -36,18 +38,23 @@ namespace ShopAPI.Controllers
                 return NotFound("Product doesn't exist!");
             }
 
-            return Ok(product);
+            return Ok(ProductMappingExtension.ToProductDTO(product));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] Product product)
+        public async Task<IActionResult> Add([FromBody] ProductDTO product)
         {
             if (product == null)
             {
                 return BadRequest("The product can't be null!");
             }
 
-            if (await _productRepository.Add(product))
+            if (await _productRepository.IfExists(product.Name, -1))
+            {
+                return BadRequest("There is already a product with that name.");
+            }
+
+            if (await _productRepository.Add(ProductMappingExtension.ToProduct(product)))
             {
                 return Ok(product);
             }
@@ -55,21 +62,25 @@ namespace ShopAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, [FromBody] Product product)
+        public async Task<IActionResult> Edit(int id, [FromBody] ProductDTO productDTO)
         {
-            if (id != product.Id)
-            {
-                return NotFound("There is no product with that id.");
-            }
             if (!await _productRepository.IfExists(id))
             {
-                return BadRequest("Product name already exists!");
+                return BadRequest("There is no product with that id.");
             }
+            if (await _productRepository.IfExists(productDTO.Name, id))
+            {
+                return BadRequest("There is already a product with that name.");
+            }
+
+            var product = ProductMappingExtension.ToProduct(productDTO);
+            product.Id = id;
+
             if (await _productRepository.Update(product))
             {
-                return Ok(product);
+                return Ok(productDTO);
             }
-            return BadRequest("Invalid Product!");
+            return BadRequest("Invalid product!");
         }
 
         [HttpDelete("{id}")]
@@ -77,7 +88,7 @@ namespace ShopAPI.Controllers
         {
             if (await _productRepository.GetAll() == null)
             {
-                return BadRequest("There are no products.");
+                return BadRequest("There are no products in the database.");
             }
 
             if (await _productRepository.Get(id) == null)
@@ -87,7 +98,7 @@ namespace ShopAPI.Controllers
 
             if (await _productRepository.Delete(id))
             {
-                return Ok();
+                return Ok("Product was successfully deleted!");
             }
             return BadRequest("Id invalid!");
         }

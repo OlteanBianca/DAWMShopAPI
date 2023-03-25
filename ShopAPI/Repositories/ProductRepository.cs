@@ -49,9 +49,9 @@ namespace ShopAPI.Repositories
             return await _shopContext.Products.AnyAsync(p => p.Id == id);
         }
 
-        public async Task<bool> IfExists(string productName)
+        public async Task<bool> IfExists(string productName, int id)
         {
-            return await _shopContext.Products.AnyAsync(p => p.Name == productName);
+            return await _shopContext.Products.AnyAsync(p => p.Name == productName && p.Id != id);
         }
 
         public async Task<bool> Update(Product objectToUpdate)

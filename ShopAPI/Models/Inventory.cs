@@ -1,9 +1,12 @@
-﻿namespace ShopAPI.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ShopAPI.Models
 {
     public partial class Inventory
     {
         public int Id { get; set; }
 
+        [Required]
         public int Quantity { get; set; }
 
         public int ProductId { get; set; }

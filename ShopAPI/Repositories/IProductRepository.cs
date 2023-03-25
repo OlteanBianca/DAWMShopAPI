@@ -7,6 +7,6 @@ namespace ShopAPI.Repositories
         /// <summary>
         /// Checks if it exists by name for creating unique products.
         /// </summary>
-        public Task<bool> IfExists(string productName);
+        public Task<bool> IfExists(string productName, int id);
     }
 }
